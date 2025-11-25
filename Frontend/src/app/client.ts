@@ -19,7 +19,24 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
 
     if (!response.ok) {
         const text = await response.text().catch(() => "");
-        throw new Error(`API Error: ${response.status} ${response.statusText} ${text}`);
+        let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+
+        try {
+            const errorData = JSON.parse(text);
+            if (errorData.errors) {
+                // ASP.NET validation errors format
+                const messages = Object.values(errorData.errors).flat();
+                errorMessage = messages.join(", ");
+            } else if (errorData.title) {
+                errorMessage = errorData.title;
+            } else if (typeof errorData === "string") {
+                errorMessage = errorData;
+            }
+        } catch {
+            if (text) errorMessage = text;
+        }
+
+        throw new Error(errorMessage);
     }
 
     if (response.status === 204) {

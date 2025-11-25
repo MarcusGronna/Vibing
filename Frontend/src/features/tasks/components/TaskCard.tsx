@@ -3,25 +3,16 @@ import { useDraggable } from "@dnd-kit/core";
 import { TaskItem } from "../types";
 import { useUpdateTask, useDeleteTask } from "../hooks";
 import { isOverdue, formatDate } from "../../../utils/dateUtils";
+import { PRIORITY_COLORS, STATUS_COLORS } from "../../../app/constants";
+import { ConfirmDialog } from "../../../components/ConfirmDialog";
 
 interface TaskCardProps {
     task: TaskItem;
 }
 
-const priorityColors = {
-    Low: "bg-green-100 text-green-800",
-    Medium: "bg-yellow-100 text-yellow-800",
-    High: "bg-red-100 text-red-800",
-};
-
-const statusColors = {
-    Todo: "bg-blue-100 text-blue-800",
-    InProgress: "bg-yellow-100 text-yellow-800",
-    Done: "bg-green-100 text-green-800",
-};
-
 export function TaskCard({ task }: TaskCardProps) {
     const [isEditing, setIsEditing] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [editTitle, setEditTitle] = useState(task.title);
     const [editDescription, setEditDescription] = useState(task.description || "");
     const [editStatus, setEditStatus] = useState<"Todo" | "InProgress" | "Done">(task.status);
@@ -75,7 +66,10 @@ export function TaskCard({ task }: TaskCardProps) {
     };
 
     const handleDelete = () => {
-        if (!confirm("Are you sure you want to delete this task?")) return;
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
         deleteTaskMutation(task.id);
     };
 
@@ -199,70 +193,87 @@ export function TaskCard({ task }: TaskCardProps) {
     const overdueClass = isOverdue(task.dueDate) ? "border-l-4 border-l-red-500" : "";
 
     return (
-        <article
-            ref={setNodeRef}
-            style={style}
-            {...listeners}
-            {...attributes}
-            role="article"
-            aria-labelledby={`task-title-${task.id}`}
-            className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-4 border border-neutral-200 ${overdueClass} ${
-                isDragging ? "opacity-50 shadow-lg scale-105 cursor-grabbing" : "cursor-grab hover:-translate-y-1"
-            }`}
-            tabIndex={0}>
-            <h3 id={`task-title-${task.id}`} className="font-semibold text-base text-neutral-900 mb-2">
-                {task.title}
-            </h3>
+        <>
+            <article
+                ref={setNodeRef}
+                style={style}
+                {...listeners}
+                {...attributes}
+                role="article"
+                aria-labelledby={`task-title-${task.id}`}
+                className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-4 border border-neutral-200 ${overdueClass} ${
+                    isDragging ? "opacity-50 shadow-lg scale-105 cursor-grabbing" : "cursor-grab hover:-translate-y-1"
+                }`}
+                tabIndex={0}>
+                <h3 id={`task-title-${task.id}`} className="font-semibold text-base text-neutral-900 mb-2">
+                    {task.title}
+                </h3>
 
-            {task.description && <p className="text-sm text-neutral-600 mb-3 line-clamp-3">{task.description}</p>}
+                {task.description && <p className="text-sm text-neutral-600 mb-3 line-clamp-3">{task.description}</p>}
 
-            <div className="flex flex-wrap gap-2 mb-3">
-                <span
-                    className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${statusColors[task.status]}`}
-                    role="status"
-                    aria-label={`Status: ${task.status}`}>
-                    {task.status}
-                </span>
-                <span
-                    className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${priorityColors[task.priority]}`}
-                    role="status"
-                    aria-label={`Priority: ${task.priority}`}>
-                    {task.priority}
-                </span>
-            </div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                    <span
+                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
+                            STATUS_COLORS[task.status]
+                        }`}
+                        role="status"
+                        aria-label={`Status: ${task.status}`}>
+                        {task.status}
+                    </span>
+                    <span
+                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
+                            PRIORITY_COLORS[task.priority]
+                        }`}
+                        role="status"
+                        aria-label={`Priority: ${task.priority}`}>
+                        {task.priority}
+                    </span>
+                </div>
 
-            {task.dueDate && (
-                <p
-                    className={`text-xs mb-3 font-medium ${
-                        isOverdue(task.dueDate) ? "text-red-600" : "text-neutral-600"
-                    }`}
-                    role="status"
-                    aria-live="polite">
-                    {isOverdue(task.dueDate) && (
-                        <span className="inline-block px-2 py-1 bg-red-100 text-red-700 rounded-md mr-2 font-semibold">
-                            OVERDUE
-                        </span>
-                    )}
-                    Due: {formatDate(task.dueDate)}
-                </p>
-            )}
+                {task.dueDate && (
+                    <p
+                        className={`text-xs mb-3 font-medium ${
+                            isOverdue(task.dueDate) ? "text-red-600" : "text-neutral-600"
+                        }`}
+                        role="status"
+                        aria-live="polite">
+                        {isOverdue(task.dueDate) && (
+                            <span className="inline-block px-2 py-1 bg-red-100 text-red-700 rounded-md mr-2 font-semibold">
+                                OVERDUE
+                            </span>
+                        )}
+                        Due: {formatDate(task.dueDate)}
+                    </p>
+                )}
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
-                <button
-                    onClick={() => setIsEditing(true)}
-                    disabled={isDeleting}
-                    className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
-                    aria-label={`Edit task: ${task.title}`}>
-                    Edit
-                </button>
-                <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
-                    aria-label={`Delete task: ${task.title}`}>
-                    {isDeleting ? "Deleting..." : "Delete"}
-                </button>
-            </div>
-        </article>
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        disabled={isDeleting}
+                        className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
+                        aria-label={`Edit task: ${task.title}`}>
+                        Edit
+                    </button>
+                    <button
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className="px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
+                        aria-label={`Delete task: ${task.title}`}>
+                        {isDeleting ? "Deleting..." : "Delete"}
+                    </button>
+                </div>
+            </article>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Delete Task"
+                message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                isDangerous
+                onConfirm={confirmDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+            />
+        </>
     );
 }

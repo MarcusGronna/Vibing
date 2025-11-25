@@ -12,6 +12,7 @@ export default function KanbanRoute() {
 
     const [priorityFilter, setPriorityFilter] = useState<"All" | "Low" | "Medium" | "High">("All");
     const [dueDateFilter, setDueDateFilter] = useState<"All" | "Today" | "This Week" | "Overdue">("All");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -83,10 +84,20 @@ export default function KanbanRoute() {
     // Apply filters
     let filteredTasks = data;
 
+    // Search filter
+    if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(
+            t => t.title.toLowerCase().includes(query) || t.description?.toLowerCase().includes(query)
+        );
+    }
+
+    // Priority filter
     if (priorityFilter !== "All") {
         filteredTasks = filteredTasks.filter(t => t.priority === priorityFilter);
     }
 
+    // Due date filter
     if (dueDateFilter === "Today") {
         filteredTasks = filteredTasks.filter(t => isToday(t.dueDate));
     } else if (dueDateFilter === "This Week") {
@@ -113,6 +124,20 @@ export default function KanbanRoute() {
                 </header>
 
                 <CreateTaskForm />
+
+                <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4 mb-6">
+                    <label htmlFor="search" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Search Tasks
+                    </label>
+                    <input
+                        id="search"
+                        type="text"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Search by title or description..."
+                        className="w-full px-4 py-2 border border-neutral-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    />
+                </div>
 
                 <TaskFilter
                     priorityFilter={priorityFilter}

@@ -30,6 +30,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add model validation
+builder.Services.AddControllers(); // Needed for validation
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,6 +43,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors(viteCors);
+
+// Add validation middleware
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == 400)
+    {
+        context.Response.ContentType = "application/json";
+    }
+});
 
 // Map endpoints
 app.MapBoardsEndpoints();
