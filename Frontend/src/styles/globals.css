@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* App global styles */
 html,
 body,
 #root {
