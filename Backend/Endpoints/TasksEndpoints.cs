@@ -17,7 +17,7 @@ public static class TasksEndpoints
         group.MapGet("/", async (ITaskRepository repo) =>
         {
             var tasks = (await repo.GetAllTasksAsync())
-                .Select(t => new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId));
+                .Select(t => new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId, t.Priority, t.DueDate));
             return Results.Ok(tasks);
         });
 
@@ -25,7 +25,7 @@ public static class TasksEndpoints
         {
             var t = await repo.GetTaskByIdAsync(id);
             if (t == null) return Results.NotFound();
-            var dto = new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId);
+            var dto = new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId, t.Priority, t.DueDate);
             return Results.Ok(dto);
         });
 
@@ -36,10 +36,12 @@ public static class TasksEndpoints
                 Title = input.Title,
                 Description = input.Description,
                 Status = input.Status,
-                BoardId = input.BoardId
+                BoardId = input.BoardId,
+                Priority = input.Priority,
+                DueDate = input.DueDate
             };
             var created = await repo.CreateTaskAsync(item);
-            var dto = new TaskDto(created.Id, created.Title, created.Description, created.Status, created.BoardId);
+            var dto = new TaskDto(created.Id, created.Title, created.Description, created.Status, created.BoardId, created.Priority, created.DueDate);
             return Results.Created($"/tasks/{dto.Id}", dto);
         });
 
@@ -51,6 +53,8 @@ public static class TasksEndpoints
             existing.Description = input.Description;
             existing.Status = input.Status;
             existing.BoardId = input.BoardId;
+            existing.Priority = input.Priority;
+            existing.DueDate = input.DueDate;
             var updated = await repo.UpdateTaskAsync(existing);
             return updated ? Results.NoContent() : Results.NotFound();
         });

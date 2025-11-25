@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useTasks, useUpdateTask } from "../hooks/useTasks";
 import { TaskColumn } from "../components/TaskColumn";
 import { CreateTaskForm } from "../components/CreateTaskForm";
+import { TaskFilter } from "../components/TaskFilter";
+import { isToday, isThisWeek, isOverdue } from "../utils/date";
 
 export default function KanbanRoute() {
     const { data, isLoading, isError, error, refetch } = useTasks();
     const { mutate: updateTask } = useUpdateTask();
+
+    const [priorityFilter, setPriorityFilter] = useState<"All" | "Low" | "Medium" | "High">("All");
+    const [dueDateFilter, setDueDateFilter] = useState<"All" | "Today" | "This Week" | "Overdue">("All");
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -25,6 +30,8 @@ export default function KanbanRoute() {
                 title: task.title,
                 description: task.description,
                 status: newStatus,
+                priority: task.priority,
+                dueDate: task.dueDate,
                 boardId: task.boardId,
             },
         });
@@ -64,10 +71,24 @@ export default function KanbanRoute() {
 
     if (!data) return null;
 
-    const tasks = data;
-    const todo = tasks.filter(t => t.status === "Todo");
-    const inProgress = tasks.filter(t => t.status === "InProgress");
-    const done = tasks.filter(t => t.status === "Done");
+    // Apply filters
+    let filteredTasks = data;
+
+    if (priorityFilter !== "All") {
+        filteredTasks = filteredTasks.filter(t => t.priority === priorityFilter);
+    }
+
+    if (dueDateFilter === "Today") {
+        filteredTasks = filteredTasks.filter(t => isToday(t.dueDate));
+    } else if (dueDateFilter === "This Week") {
+        filteredTasks = filteredTasks.filter(t => isThisWeek(t.dueDate));
+    } else if (dueDateFilter === "Overdue") {
+        filteredTasks = filteredTasks.filter(t => isOverdue(t.dueDate));
+    }
+
+    const todo = filteredTasks.filter(t => t.status === "Todo");
+    const inProgress = filteredTasks.filter(t => t.status === "InProgress");
+    const done = filteredTasks.filter(t => t.status === "Done");
 
     return (
         <div className="min-h-screen bg-neutral-100 p-6">
@@ -81,6 +102,13 @@ export default function KanbanRoute() {
             </div>
 
             <CreateTaskForm />
+
+            <TaskFilter
+                priorityFilter={priorityFilter}
+                dueDateFilter={dueDateFilter}
+                onPriorityChange={setPriorityFilter}
+                onDueDateChange={setDueDateFilter}
+            />
 
             <DndContext onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

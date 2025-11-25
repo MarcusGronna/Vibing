@@ -9,4 +9,7 @@ public class TaskItem
 
     public int BoardId { get; set; }
     public Board? Board { get; set; }
+
+    public string Priority { get; set; } = "Medium"; // Low | Medium | High
+    public DateTime? DueDate { get; set; }
 }
