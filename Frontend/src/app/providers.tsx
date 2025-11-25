@@ -8,16 +8,16 @@ import { router } from "../router";
 import { ErrorBoundary } from "./ErrorBoundary";
 
 interface ProvidersProps {
-  children?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ToastContainer position="top-right" autoClose={3000} />
-        {children ?? <RouterProvider router={router} />}
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
+    return (
+        <ErrorBoundary>
+            <QueryClientProvider client={queryClient}>
+                <ToastContainer position="top-right" autoClose={3000} />
+                {children ?? <RouterProvider router={router} />}
+            </QueryClientProvider>
+        </ErrorBoundary>
+    );
 }
