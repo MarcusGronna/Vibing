@@ -15,19 +15,26 @@ export function TaskColumn({ title, tasks, statusId }: TaskColumnProps) {
     });
 
     return (
-        <div
+        <section
             ref={setNodeRef}
-            className={`bg-neutral-50 border-2 rounded-lg p-4 transition-colors ${
-                isOver ? "border-blue-500 bg-blue-50" : "border-neutral-200"
+            role="region"
+            aria-labelledby={`column-${statusId}`}
+            className={`bg-neutral-50 border-2 rounded-lg p-4 transition-all duration-200 min-h-[400px] ${
+                isOver ? "border-blue-500 bg-blue-50 shadow-md" : "border-neutral-200 shadow-sm"
             }`}>
-            <h2 className="text-lg font-bold text-neutral-800 mb-4">{title}</h2>
-            <div className="space-y-3">
+            <h2
+                id={`column-${statusId}`}
+                className="text-lg font-bold text-neutral-800 mb-4 pb-2 border-b-2 border-neutral-200">
+                {title}
+                <span className="ml-2 text-sm font-normal text-neutral-500">({tasks.length})</span>
+            </h2>
+            <div className="space-y-3" role="list" aria-label={`${title} tasks`}>
                 {tasks.length === 0 ? (
-                    <p className="text-sm text-neutral-500 italic">No tasks</p>
+                    <p className="text-sm text-neutral-500 italic text-center py-8">No tasks</p>
                 ) : (
                     tasks.map(task => <TaskCard key={task.id} task={task} />)
                 )}
             </div>
-        </div>
+        </section>
     );
 }

@@ -39,18 +39,22 @@ export default function KanbanRoute() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-neutral-100 p-6">
-                <h1 className="text-3xl font-bold text-neutral-900 mb-6">Kanban Board</h1>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map(col => (
-                        <div key={col} className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
-                            <div className="h-6 bg-neutral-200 rounded animate-pulse mb-4"></div>
-                            <div className="space-y-3">
-                                <div className="h-20 bg-neutral-200 rounded animate-pulse"></div>
-                                <div className="h-20 bg-neutral-200 rounded animate-pulse"></div>
+            <div className="min-h-screen bg-neutral-100 p-4 sm:p-6">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-6">Kanban Board</h1>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        {[1, 2, 3].map(col => (
+                            <div
+                                key={col}
+                                className="bg-neutral-50 border border-neutral-200 rounded-lg p-4 min-h-[400px]">
+                                <div className="h-6 bg-neutral-200 rounded animate-pulse mb-4"></div>
+                                <div className="space-y-3">
+                                    <div className="h-24 bg-neutral-200 rounded animate-pulse"></div>
+                                    <div className="h-24 bg-neutral-200 rounded animate-pulse"></div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         );
@@ -58,13 +62,18 @@ export default function KanbanRoute() {
 
     if (isError) {
         return (
-            <div className="min-h-screen bg-neutral-100 p-6 flex flex-col items-center justify-center">
-                <div className="text-red-600 text-center mb-4">Failed to load tasks: {(error as Error).message}</div>
-                <button
-                    onClick={() => refetch()}
-                    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                    Try Again
-                </button>
+            <div className="min-h-screen bg-neutral-100 p-4 sm:p-6 flex flex-col items-center justify-center">
+                <div className="text-center max-w-md">
+                    <p className="text-red-600 text-lg mb-4" role="alert">
+                        Failed to load tasks: {(error as Error).message}
+                    </p>
+                    <button
+                        onClick={() => refetch()}
+                        className="px-6 py-3 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 active:scale-[0.97]"
+                        aria-label="Retry loading tasks">
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
@@ -91,32 +100,38 @@ export default function KanbanRoute() {
     const done = filteredTasks.filter(t => t.status === "Done");
 
     return (
-        <div className="min-h-screen bg-neutral-100 p-6">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-neutral-900">Kanban Board</h1>
-                <button
-                    onClick={() => refetch()}
-                    className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm">
-                    Refresh
-                </button>
+        <div className="min-h-screen bg-neutral-100 p-4 sm:p-6">
+            <div className="max-w-7xl mx-auto">
+                <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Kanban Board</h1>
+                    <button
+                        onClick={() => refetch()}
+                        className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 active:scale-[0.97]"
+                        aria-label="Refresh tasks">
+                        Refresh
+                    </button>
+                </header>
+
+                <CreateTaskForm />
+
+                <TaskFilter
+                    priorityFilter={priorityFilter}
+                    dueDateFilter={dueDateFilter}
+                    onPriorityChange={setPriorityFilter}
+                    onDueDateChange={setDueDateFilter}
+                />
+
+                <DndContext onDragEnd={handleDragEnd}>
+                    <div
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+                        role="main"
+                        aria-label="Kanban board columns">
+                        <TaskColumn title="Todo" tasks={todo} statusId="Todo" />
+                        <TaskColumn title="In Progress" tasks={inProgress} statusId="InProgress" />
+                        <TaskColumn title="Done" tasks={done} statusId="Done" />
+                    </div>
+                </DndContext>
             </div>
-
-            <CreateTaskForm />
-
-            <TaskFilter
-                priorityFilter={priorityFilter}
-                dueDateFilter={dueDateFilter}
-                onPriorityChange={setPriorityFilter}
-                onDueDateChange={setDueDateFilter}
-            />
-
-            <DndContext onDragEnd={handleDragEnd}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <TaskColumn title="Todo" tasks={todo} statusId="Todo" />
-                    <TaskColumn title="In Progress" tasks={inProgress} statusId="InProgress" />
-                    <TaskColumn title="Done" tasks={done} statusId="Done" />
-                </div>
-            </DndContext>
         </div>
     );
 }
