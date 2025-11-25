@@ -2,12 +2,17 @@ using Backend.Data;
 using Backend.Repositories;
 using Backend.Endpoints;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Configure JSON serialization to use camelCase
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
 // add connection string in appsettings.json (see changes below)
 var connection = builder.Configuration.GetConnectionString("KanbanConnection") ?? "Data Source=kanban.db";
@@ -35,35 +40,33 @@ builder.Services.AddControllers(); // Needed for validation
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
 app.UseHttpsRedirection();
 app.UseCors(viteCors);
-
-// Add validation middleware
-app.Use(async (context, next) =>
-{
-    await next();
-
-    if (context.Response.StatusCode == 400)
-    {
-        context.Response.ContentType = "application/json";
-    }
-});
 
 // Map endpoints
 app.MapBoardsEndpoints();
 app.MapTasksEndpoints();
 
-// ensure database is created at startup (use migrations in development)
+// Ensure database is created and migrated
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<KanbanDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
+
+    // Seed initial data if empty
+    if (!db.Boards.Any())}
+{
+    var board = new Board { Name = "My Board" }; 6");
+        db.Boards.Add(board); db.SaveChanges(); db.Tasks.Add(new TaskItem
+        {
+            Title = "Welcome Task",
+            Description = "This is your first task!",
+            Status = "Todo",
+            Priority = "Medium",
+            BoardId = board.Id
+        });
+    db.SaveChanges();
+}
 }
 
-app.Run();
+app.Run("http://localhost:5146");

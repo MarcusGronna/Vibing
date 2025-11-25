@@ -20,7 +20,15 @@ public static class BoardsEndpoints
                 .Select(b => new BoardDto(
                     b.Id,
                     b.Name,
-                    b.Tasks?.Select(t => new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId)) ?? Enumerable.Empty<TaskDto>()
+                    b.Tasks?.Select(t => new TaskDto(
+                        t.Id,
+                        t.Title,
+                        t.Description,
+                        t.Status,
+                        t.BoardId,
+                        t.Priority,
+                        t.DueDate
+                    )) ?? Enumerable.Empty<TaskDto>()
                 ));
             return Results.Ok(boards);
         });
@@ -32,7 +40,15 @@ public static class BoardsEndpoints
             var dto = new BoardDto(
                 board.Id,
                 board.Name,
-                board.Tasks?.Select(t => new TaskDto(t.Id, t.Title, t.Description, t.Status, t.BoardId)) ?? Enumerable.Empty<TaskDto>()
+                board.Tasks?.Select(t => new TaskDto(
+                    t.Id,
+                    t.Title,
+                    t.Description,
+                    t.Status,
+                    t.BoardId,
+                    t.Priority,
+                    t.DueDate
+                )) ?? Enumerable.Empty<TaskDto>()
             );
             return Results.Ok(dto);
         });

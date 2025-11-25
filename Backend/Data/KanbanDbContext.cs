@@ -16,6 +16,7 @@ public class KanbanDbContext : DbContext
         {
             b.HasKey(x => x.Id);
             b.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            b.ToTable("Boards");
             b.HasMany(x => x.Tasks)
              .WithOne(t => t.Board)
              .HasForeignKey(t => t.BoardId)
@@ -26,7 +27,10 @@ public class KanbanDbContext : DbContext
         {
             t.HasKey(x => x.Id);
             t.Property(x => x.Title).IsRequired().HasMaxLength(500);
-            t.Property(x => x.Status).IsRequired().HasDefaultValue("Todo").HasMaxLength(50);
+            t.Property(x => x.Status).IsRequired().HasMaxLength(50).HasDefaultValue("Todo");
+            t.Property(x => x.Priority).IsRequired().HasMaxLength(50).HasDefaultValue("Medium");
+            t.Property(x => x.Description).HasMaxLength(2000);
+            t.ToTable("Tasks");
         });
 
         base.OnModelCreating(modelBuilder);

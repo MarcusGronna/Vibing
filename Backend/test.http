@@ -1,0 +1,25 @@
+### Get all tasks
+GET http://localhost:5146/tasks
+
+### Get all boards
+GET http://localhost:5146/boards
+
+### Create a board
+POST http://localhost:5146/boards
+Content-Type: application/json
+
+{
+  "name": "Test Board"
+}
+
+### Create a task
+POST http://localhost:5146/tasks
+Content-Type: application/json
+
+{
+  "title": "Test Task",
+  "description": "Test Description",
+  "status": "Todo",
+  "priority": "Medium",
+  "boardId": 1
+}
