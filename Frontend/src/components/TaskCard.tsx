@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TaskItem } from "../types/TaskItem";
-import { useUpdateTask } from "../hooks/useTasks";
+import { useUpdateTask, useDeleteTask } from "../hooks/useTasks";
 
 interface TaskCardProps {
     task: TaskItem;
@@ -13,6 +13,7 @@ export function TaskCard({ task }: TaskCardProps) {
     const [editStatus, setEditStatus] = useState<"Todo" | "InProgress" | "Done">(task.status);
 
     const { mutate: updateTask, isPending } = useUpdateTask();
+    const { mutate: deleteTaskMutation, isPending: isDeleting } = useDeleteTask();
 
     const statusColors = {
         Todo: "bg-blue-100 text-blue-800",
@@ -52,6 +53,11 @@ export function TaskCard({ task }: TaskCardProps) {
         if (e.key === "Escape") {
             handleCancel();
         }
+    };
+
+    const handleDelete = () => {
+        if (!confirm("Are you sure you want to delete this task?")) return;
+        deleteTaskMutation(task.id);
     };
 
     if (isEditing) {
@@ -118,11 +124,20 @@ export function TaskCard({ task }: TaskCardProps) {
                 <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${statusColors[task.status]}`}>
                     {task.status}
                 </span>
-                <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors">
-                    Edit
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        disabled={isDeleting}
+                        className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Edit
+                    </button>
+                    <button
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        {isDeleting ? "Deleting..." : "Delete"}
+                    </button>
+                </div>
             </div>
         </div>
     );
