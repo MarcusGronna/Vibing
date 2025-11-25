@@ -22,51 +22,41 @@ builder.Services.AddDbContext<KanbanDbContext>(options => options.UseSqlite(conn
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
-// CORS policy for Vite dev server
-const string viteCors = "ViteCors";
+// Fix CORS - must be configured before building app
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(viteCors, policy =>
+    options.AddPolicy("ViteCors", policy =>
     {
         policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
               .AllowAnyHeader()
-              .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+              .AllowCredentials();
+        policy.WithOrigins("http://localhost:5173/kanban")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
               .AllowCredentials();
     });
 });
 
-// Add model validation
-builder.Services.AddControllers(); // Needed for validation
-
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-app.UseCors(viteCors);
+// CORS must be used BEFORE routing
+app.UseCors("ViteCors");
 
-// Map endpoints
 app.MapBoardsEndpoints();
 app.MapTasksEndpoints();
 
-// Ensure database is created and migrated
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<KanbanDbContext>();
     db.Database.EnsureCreated();
 
-    // Seed initial data if empty
-    if (!db.Boards.Any())}
-{
-    var board = new Board { Name = "My Board" }; 6");
-        db.Boards.Add(board); db.SaveChanges(); db.Tasks.Add(new TaskItem
-        {
-            Title = "Welcome Task",
-            Description = "This is your first task!",
-            Status = "Todo",
-            Priority = "Medium",
-            BoardId = board.Id
-        });
-    db.SaveChanges();
-}
+    if (!db.Boards.Any())
+    {
+        var board = new Board { Name = "My Kanban Board" };
+        db.Boards.Add(board);
+        db.SaveChanges();
+    }
 }
 
-app.Run("http://localhost:5146");
+app.Run();

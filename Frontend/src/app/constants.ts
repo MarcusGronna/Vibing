@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5146";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5147";
 
 export const DEFAULT_BOARD_ID = 1;
 
