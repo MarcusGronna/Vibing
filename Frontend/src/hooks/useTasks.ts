@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getTasks, getTask, createTask, updateTask, deleteTask } from "../api/tasks";
 import { TaskItem } from "../types/TaskItem";
+import { toast } from "react-toastify";
 
 export function useTasks() {
     return useQuery({
@@ -26,6 +27,10 @@ export function useCreateTask() {
         mutationFn: (data: Partial<TaskItem>) => createTask(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
+            toast.success("Task created successfully");
+        },
+        onError: (error: Error) => {
+            toast.error(`Failed to create task: ${error.message}`);
         },
     });
 }

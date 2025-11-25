@@ -1,6 +1,7 @@
 import React from "react";
 import { useTasks } from "../hooks/useTasks";
 import { TaskColumn } from "../components/TaskColumn";
+import { CreateTaskForm } from "../components/CreateTaskForm";
 
 export default function KanbanRoute() {
     const { data, isLoading, isError, error, refetch } = useTasks();
@@ -54,6 +55,9 @@ export default function KanbanRoute() {
                     Refresh
                 </button>
             </div>
+
+            <CreateTaskForm />
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <TaskColumn title="Todo" tasks={todo} />
                 <TaskColumn title="In Progress" tasks={inProgress} />
