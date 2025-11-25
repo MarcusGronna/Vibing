@@ -6,7 +6,7 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Build output
+# Vite / build output
 dist/
 build/
 .vite/
@@ -34,20 +34,7 @@ desktop.ini
 *.sublime-project
 *.sublime-workspace
 *.sw?
-*.swp
 
 # Test coverage
 coverage/
 .nyc_output/
-
-# Backend-specific
-Backend/bin/
-Backend/obj/
-Backend/*.db
-Backend/*.db-shm
-Backend/*.db-wal
-Backend/Migrations/
-
-# Frontend-specific
-Frontend/dist/
-Frontend/.vite/
