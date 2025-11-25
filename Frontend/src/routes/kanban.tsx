@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useTasks, useUpdateTask } from "../hooks/useTasks";
-import { TaskColumn } from "../components/TaskColumn";
-import { CreateTaskForm } from "../components/CreateTaskForm";
-import { TaskFilter } from "../components/TaskFilter";
-import { isToday, isThisWeek, isOverdue } from "../utils/date";
+import { useTasks, useUpdateTask } from "../features/tasks/hooks";
+import { TaskColumn, CreateTaskForm, TaskFilter } from "../features/tasks/components";
+import { isToday, isThisWeek, isOverdue } from "../utils/dateUtils";
 
 export default function KanbanRoute() {
     const { data, isLoading, isError, error, refetch } = useTasks();
