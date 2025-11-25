@@ -1,4 +1,4 @@
-export * from "./TaskCard";
-export * from "./TaskColumn";
-export * from "./TaskFilter";
-export * from "./CreateTaskForm";
+export { TaskCard } from "./TaskCard";
+export { TaskColumn } from "./TaskColumn";
+export { TaskFilter } from "./TaskFilter";
+export { CreateTaskForm } from "./CreateTaskForm";
