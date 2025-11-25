@@ -6,19 +6,18 @@ import "react-toastify/dist/ReactToastify.css";
 import { queryClient } from "./queryClient";
 import { router } from "../router";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { TOAST_CONFIG } from "./constants";
 
 interface ProvidersProps {
-    children?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-    return (
-        <ErrorBoundary>
-            <QueryClientProvider client={queryClient}>
-                <ToastContainer position={TOAST_CONFIG.POSITION} autoClose={TOAST_CONFIG.AUTO_CLOSE} />
-                {children ?? <RouterProvider router={router} />}
-            </QueryClientProvider>
-        </ErrorBoundary>
-    );
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ToastContainer position="top-right" autoClose={3000} />
+        {children ?? <RouterProvider router={router} />}
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 }
