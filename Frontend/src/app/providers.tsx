@@ -7,14 +7,14 @@ import { queryClient } from "./queryClient";
 import { router } from "../router";
 
 interface ProvidersProps {
-  children?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ToastContainer position="top-right" autoClose={3000} />
-      {children ?? <RouterProvider router={router} />}
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ToastContainer position="top-right" autoClose={3000} />
+            {children ?? <RouterProvider router={router} />}
+        </QueryClientProvider>
+    );
 }
