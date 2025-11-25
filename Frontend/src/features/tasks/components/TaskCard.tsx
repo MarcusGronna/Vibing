@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { TaskItem } from "../types";
+import { TaskItem, TaskStatus, TaskPriority } from "../types";
 import { useUpdateTask, useDeleteTask } from "../hooks";
 import { isOverdue, formatDate } from "../../../utils/dateUtils";
 import { PRIORITY_COLORS, STATUS_COLORS } from "../../../app/constants";
-import { ConfirmDialog } from "../../../components/ConfirmDialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface TaskCardProps {
     task: TaskItem;
@@ -15,8 +15,8 @@ export function TaskCard({ task }: TaskCardProps) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [editTitle, setEditTitle] = useState(task.title);
     const [editDescription, setEditDescription] = useState(task.description || "");
-    const [editStatus, setEditStatus] = useState<"Todo" | "InProgress" | "Done">(task.status);
-    const [editPriority, setEditPriority] = useState<"Low" | "Medium" | "High">(task.priority);
+    const [editStatus, setEditStatus] = useState<TaskStatus>(task.status);
+    const [editPriority, setEditPriority] = useState<TaskPriority>(task.priority);
     const [editDueDate, setEditDueDate] = useState(task.dueDate || "");
 
     const { mutate: updateTask, isPending } = useUpdateTask();
@@ -126,7 +126,7 @@ export function TaskCard({ task }: TaskCardProps) {
                         <select
                             id={`edit-status-${task.id}`}
                             value={editStatus}
-                            onChange={e => setEditStatus(e.target.value as "Todo" | "InProgress" | "Done")}
+                            onChange={e => setEditStatus(e.target.value as TaskStatus)}
                             className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             disabled={isPending}>
                             <option value="Todo">Todo</option>
@@ -144,7 +144,7 @@ export function TaskCard({ task }: TaskCardProps) {
                         <select
                             id={`edit-priority-${task.id}`}
                             value={editPriority}
-                            onChange={e => setEditPriority(e.target.value as "Low" | "Medium" | "High")}
+                            onChange={e => setEditPriority(e.target.value as TaskPriority)}
                             className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             disabled={isPending}>
                             <option value="Low">Low Priority</option>

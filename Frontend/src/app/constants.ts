@@ -3,15 +3,15 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:51
 export const DEFAULT_BOARD_ID = 1;
 
 export const QUERY_CONFIG = {
-    STALE_TIME: 30_000, // 30 seconds
-    REFETCH_INTERVAL: 15_000, // 15 seconds
+    STALE_TIME: 30_000,
+    REFETCH_INTERVAL: 15_000,
     RETRY: 2,
 } as const;
 
 export const TOAST_CONFIG = {
-    POSITION: "top-right",
+    POSITION: "top-right" as const,
     AUTO_CLOSE: 3000,
-} as const;
+};
 
 export const PRIORITY_COLORS = {
     Low: "bg-green-100 text-green-800",

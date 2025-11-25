@@ -4,13 +4,14 @@ import { useTasks, useUpdateTask } from "../features/tasks/hooks";
 import { TaskColumn } from "../features/tasks/components/TaskColumn";
 import { CreateTaskForm } from "../features/tasks/components/CreateTaskForm";
 import { TaskFilter } from "../features/tasks/components/TaskFilter";
+import { TaskPriority, TaskStatus } from "../features/tasks/types";
 import { isToday, isThisWeek, isOverdue } from "../utils/dateUtils";
 
 export default function KanbanRoute() {
     const { data, isLoading, isError, error, refetch } = useTasks();
     const { mutate: updateTask } = useUpdateTask();
 
-    const [priorityFilter, setPriorityFilter] = useState<"All" | "Low" | "Medium" | "High">("All");
+    const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "All">("All");
     const [dueDateFilter, setDueDateFilter] = useState<"All" | "Today" | "This Week" | "Overdue">("All");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -19,9 +20,8 @@ export default function KanbanRoute() {
         if (!over) return;
 
         const taskId = Number(active.id);
-        const newStatus = over.id as "Todo" | "InProgress" | "Done";
+        const newStatus = over.id as TaskStatus;
 
-        // Find the task to get its current data
         const task = data?.find(t => t.id === taskId);
         if (!task || task.status === newStatus) return;
 
@@ -81,10 +81,8 @@ export default function KanbanRoute() {
 
     if (!data) return null;
 
-    // Apply filters
     let filteredTasks = data;
 
-    // Search filter
     if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         filteredTasks = filteredTasks.filter(
@@ -92,12 +90,10 @@ export default function KanbanRoute() {
         );
     }
 
-    // Priority filter
     if (priorityFilter !== "All") {
         filteredTasks = filteredTasks.filter(t => t.priority === priorityFilter);
     }
 
-    // Due date filter
     if (dueDateFilter === "Today") {
         filteredTasks = filteredTasks.filter(t => isToday(t.dueDate));
     } else if (dueDateFilter === "This Week") {
