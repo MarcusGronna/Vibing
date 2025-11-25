@@ -1,9 +1,20 @@
-import { createBrowserRouter } from "@tanstack/react-router";
+import { createRouter, createRootRoute, createRoute } from "@tanstack/react-router";
 import IndexRoute from "./routes/index";
 
-export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <IndexRoute />,
-    },
-]);
+const rootRoute = createRootRoute();
+
+const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/",
+    component: IndexRoute,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute]);
+
+export const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+    interface Register {
+        router: typeof router;
+    }
+}
