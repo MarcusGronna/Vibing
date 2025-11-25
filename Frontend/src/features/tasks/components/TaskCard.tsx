@@ -5,6 +5,9 @@ import { useUpdateTask, useDeleteTask } from "../hooks";
 import { isOverdue, formatDate } from "../../../utils/dateUtils";
 import { PRIORITY_COLORS, STATUS_COLORS } from "../../../app/constants";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { Badge } from "../../../components/ui/Badge";
 
 interface TaskCardProps {
     task: TaskItem;
@@ -27,11 +30,7 @@ export function TaskCard({ task }: TaskCardProps) {
         disabled: isEditing || isPending || isDeleting,
     });
 
-    const style = transform
-        ? {
-              transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-          }
-        : undefined;
+    const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
     const handleSave = () => {
         if (!editTitle.trim()) return;
@@ -48,11 +47,7 @@ export function TaskCard({ task }: TaskCardProps) {
                     boardId: task.boardId,
                 },
             },
-            {
-                onSuccess: () => {
-                    setIsEditing(false);
-                },
-            }
+            { onSuccess: () => setIsEditing(false) }
         );
     };
 
@@ -65,18 +60,8 @@ export function TaskCard({ task }: TaskCardProps) {
         setIsEditing(false);
     };
 
-    const handleDelete = () => {
-        setShowDeleteConfirm(true);
-    };
-
-    const confirmDelete = () => {
-        deleteTaskMutation(task.id);
-    };
-
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Escape") {
-            handleCancel();
-        }
+        if (e.key === "Escape") handleCancel();
     };
 
     if (isEditing) {
@@ -84,38 +69,34 @@ export function TaskCard({ task }: TaskCardProps) {
             <article
                 role="article"
                 aria-labelledby={`task-title-edit-${task.id}`}
-                className={`bg-white rounded-lg shadow-md p-4 border-2 ${
-                    isPending ? "border-yellow-400" : "border-blue-500"
-                } transition-all duration-200`}
+                className={`card border-2 ${isPending ? "border-yellow-400" : "border-blue-500"}`}
                 onKeyDown={handleKeyDown}>
                 <div className="space-y-3">
-                    <label htmlFor={`edit-title-${task.id}`} className="sr-only">
-                        Task Title
-                    </label>
-                    <input
+                    <Input
                         id={`edit-title-${task.id}`}
-                        type="text"
                         value={editTitle}
                         onChange={e => setEditTitle(e.target.value)}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         placeholder="Task title"
                         disabled={isPending}
                         autoFocus
-                        aria-required="true"
+                        required
+                        aria-label="Task Title"
                     />
 
-                    <label htmlFor={`edit-description-${task.id}`} className="sr-only">
-                        Task Description
-                    </label>
-                    <textarea
-                        id={`edit-description-${task.id}`}
-                        value={editDescription}
-                        onChange={e => setEditDescription(e.target.value)}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        placeholder="Description (optional)"
-                        rows={3}
-                        disabled={isPending}
-                    />
+                    <div>
+                        <label htmlFor={`edit-description-${task.id}`} className="sr-only">
+                            Task Description
+                        </label>
+                        <textarea
+                            id={`edit-description-${task.id}`}
+                            value={editDescription}
+                            onChange={e => setEditDescription(e.target.value)}
+                            className="input-base text-sm"
+                            placeholder="Description (optional)"
+                            rows={3}
+                            disabled={isPending}
+                        />
+                    </div>
 
                     <div className="space-y-2">
                         <label
@@ -127,7 +108,7 @@ export function TaskCard({ task }: TaskCardProps) {
                             id={`edit-status-${task.id}`}
                             value={editStatus}
                             onChange={e => setEditStatus(e.target.value as TaskStatus)}
-                            className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="input-base text-sm"
                             disabled={isPending}>
                             <option value="Todo">Todo</option>
                             <option value="InProgress">In Progress</option>
@@ -145,7 +126,7 @@ export function TaskCard({ task }: TaskCardProps) {
                             id={`edit-priority-${task.id}`}
                             value={editPriority}
                             onChange={e => setEditPriority(e.target.value as TaskPriority)}
-                            className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="input-base text-sm"
                             disabled={isPending}>
                             <option value="Low">Low Priority</option>
                             <option value="Medium">Medium Priority</option>
@@ -153,37 +134,31 @@ export function TaskCard({ task }: TaskCardProps) {
                         </select>
                     </div>
 
-                    <div className="space-y-2">
-                        <label
-                            htmlFor={`edit-duedate-${task.id}`}
-                            className="block text-sm font-medium text-neutral-700">
-                            Due Date
-                        </label>
-                        <input
-                            id={`edit-duedate-${task.id}`}
-                            type="date"
-                            value={editDueDate}
-                            onChange={e => setEditDueDate(e.target.value)}
-                            className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                            disabled={isPending}
-                        />
-                    </div>
+                    <Input
+                        type="date"
+                        id={`edit-duedate-${task.id}`}
+                        value={editDueDate}
+                        onChange={e => setEditDueDate(e.target.value)}
+                        label="Due Date"
+                        disabled={isPending}
+                    />
 
                     <div className="flex gap-2 pt-2">
-                        <button
+                        <Button
                             onClick={handleSave}
                             disabled={isPending || !editTitle.trim()}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-neutral-400 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.97]"
+                            className="flex-1"
                             aria-label="Save task changes">
                             {isPending ? "Saving..." : "Save"}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={handleCancel}
                             disabled={isPending}
-                            className="flex-1 px-4 py-2 bg-neutral-200 text-neutral-700 rounded-md text-sm font-medium hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.97]"
+                            variant="secondary"
+                            className="flex-1"
                             aria-label="Cancel editing">
                             Cancel
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </article>
@@ -201,7 +176,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 {...attributes}
                 role="article"
                 aria-labelledby={`task-title-${task.id}`}
-                className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-4 border border-neutral-200 ${overdueClass} ${
+                className={`card hover:shadow-md transition-all duration-200 ${overdueClass} ${
                     isDragging ? "opacity-50 shadow-lg scale-105 cursor-grabbing" : "cursor-grab hover:-translate-y-1"
                 }`}
                 tabIndex={0}>
@@ -212,22 +187,15 @@ export function TaskCard({ task }: TaskCardProps) {
                 {task.description && <p className="text-sm text-neutral-600 mb-3 line-clamp-3">{task.description}</p>}
 
                 <div className="flex flex-wrap gap-2 mb-3">
-                    <span
-                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
-                            STATUS_COLORS[task.status]
-                        }`}
-                        role="status"
-                        aria-label={`Status: ${task.status}`}>
+                    <Badge variant="status" color={STATUS_COLORS[task.status]} ariaLabel={`Status: ${task.status}`}>
                         {task.status}
-                    </span>
-                    <span
-                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
-                            PRIORITY_COLORS[task.priority]
-                        }`}
-                        role="status"
-                        aria-label={`Priority: ${task.priority}`}>
+                    </Badge>
+                    <Badge
+                        variant="priority"
+                        color={PRIORITY_COLORS[task.priority]}
+                        ariaLabel={`Priority: ${task.priority}`}>
                         {task.priority}
-                    </span>
+                    </Badge>
                 </div>
 
                 {task.dueDate && (
@@ -255,7 +223,7 @@ export function TaskCard({ task }: TaskCardProps) {
                         Edit
                     </button>
                     <button
-                        onClick={handleDelete}
+                        onClick={() => setShowDeleteConfirm(true)}
                         disabled={isDeleting}
                         className="px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
                         aria-label={`Delete task: ${task.title}`}>
@@ -271,7 +239,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 confirmLabel="Delete"
                 cancelLabel="Cancel"
                 isDangerous
-                onConfirm={confirmDelete}
+                onConfirm={() => deleteTaskMutation(task.id)}
                 onCancel={() => setShowDeleteConfirm(false)}
             />
         </>

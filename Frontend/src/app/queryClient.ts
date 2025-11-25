@@ -7,7 +7,7 @@ export const queryClient = new QueryClient({
             staleTime: QUERY_CONFIG.STALE_TIME,
             refetchInterval: QUERY_CONFIG.REFETCH_INTERVAL,
             retry: QUERY_CONFIG.RETRY,
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: QUERY_CONFIG.REFETCH_ON_WINDOW_FOCUS,
         },
     },
 });
