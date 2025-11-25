@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDraggable } from "@dnd-kit/core";
 import { TaskItem } from "../types/TaskItem";
 import { useUpdateTask, useDeleteTask } from "../hooks/useTasks";
 
@@ -14,6 +15,17 @@ export function TaskCard({ task }: TaskCardProps) {
 
     const { mutate: updateTask, isPending } = useUpdateTask();
     const { mutate: deleteTaskMutation, isPending: isDeleting } = useDeleteTask();
+
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: task.id,
+        disabled: isEditing || isPending || isDeleting,
+    });
+
+    const style = transform
+        ? {
+              transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          }
+        : undefined;
 
     const statusColors = {
         Todo: "bg-blue-100 text-blue-800",
@@ -117,7 +129,14 @@ export function TaskCard({ task }: TaskCardProps) {
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-4 border border-neutral-200">
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...listeners}
+            {...attributes}
+            className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-4 border border-neutral-200 ${
+                isDragging ? "opacity-50 shadow-lg scale-105 cursor-grabbing" : "cursor-grab"
+            }`}>
             <h3 className="font-semibold text-neutral-900 mb-2">{task.title}</h3>
             {task.description && <p className="text-sm text-neutral-600 mb-3 line-clamp-3">{task.description}</p>}
             <div className="flex items-center justify-between">

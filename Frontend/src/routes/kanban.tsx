@@ -1,10 +1,34 @@
 import React from "react";
-import { useTasks } from "../hooks/useTasks";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useTasks, useUpdateTask } from "../hooks/useTasks";
 import { TaskColumn } from "../components/TaskColumn";
 import { CreateTaskForm } from "../components/CreateTaskForm";
 
 export default function KanbanRoute() {
     const { data, isLoading, isError, error, refetch } = useTasks();
+    const { mutate: updateTask } = useUpdateTask();
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const taskId = Number(active.id);
+        const newStatus = over.id as "Todo" | "InProgress" | "Done";
+
+        // Find the task to get its current data
+        const task = data?.find(t => t.id === taskId);
+        if (!task || task.status === newStatus) return;
+
+        updateTask({
+            id: taskId,
+            data: {
+                title: task.title,
+                description: task.description,
+                status: newStatus,
+                boardId: task.boardId,
+            },
+        });
+    };
 
     if (isLoading) {
         return (
@@ -58,11 +82,13 @@ export default function KanbanRoute() {
 
             <CreateTaskForm />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <TaskColumn title="Todo" tasks={todo} />
-                <TaskColumn title="In Progress" tasks={inProgress} />
-                <TaskColumn title="Done" tasks={done} />
-            </div>
+            <DndContext onDragEnd={handleDragEnd}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <TaskColumn title="Todo" tasks={todo} statusId="Todo" />
+                    <TaskColumn title="In Progress" tasks={inProgress} statusId="InProgress" />
+                    <TaskColumn title="Done" tasks={done} statusId="Done" />
+                </div>
+            </DndContext>
         </div>
     );
 }
