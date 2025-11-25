@@ -41,6 +41,10 @@ export function useUpdateTask() {
         mutationFn: ({ id, data }: { id: number; data: Partial<TaskItem> }) => updateTask(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
+            toast.success("Task updated successfully");
+        },
+        onError: (error: Error) => {
+            toast.error(`Failed to update task: ${error.message}`);
         },
     });
 }
@@ -51,6 +55,10 @@ export function useDeleteTask() {
         mutationFn: (id: number) => deleteTask(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
+            toast.success("Task deleted successfully");
+        },
+        onError: (error: Error) => {
+            toast.error(`Failed to delete task: ${error.message}`);
         },
     });
 }
