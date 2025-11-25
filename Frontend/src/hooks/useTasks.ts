@@ -6,6 +6,9 @@ export function useTasks() {
     return useQuery({
         queryKey: ["tasks"],
         queryFn: getTasks,
+        staleTime: 30_000, // 30 seconds
+        refetchInterval: 15_000, // refetch every 15 seconds
+        retry: 2,
     });
 }
 
